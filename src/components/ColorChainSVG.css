@@ -1,0 +1,88 @@
+.ColorChainSVG {
+  position: absolute;
+  width: 580px;
+  height: 580px;
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .ColorChainSVG {
+    width: 360px;
+    height: 360px;
+  }
+}
+
+.set1a {
+  stroke: #1b5e20;
+  fill: #c8e6c9;
+}
+
+.set1b {
+  stroke: #1b5e20;
+  fill: #4caf50;
+}
+
+.set2a {
+  stroke: #4527a0;
+  fill: #d1c4e9;
+}
+
+.set2b {
+  stroke: #4527a0;
+  fill: #673ab7;
+}
+
+.set3a {
+  stroke: #bf360c;
+  fill: #ffccbc;
+}
+
+.set3b {
+  stroke: #bf360c;
+  fill: #ff5722;
+}
+
+.set4a {
+  stroke: #880e4f;
+  fill: #f8bbd0;
+}
+
+.set4b {
+  stroke: #880e4f;
+  fill: #e91e63;
+}
+
+.set5a {
+  stroke: #263238;
+  fill: #cfd8dc;
+}
+
+.set5b {
+  stroke: #263238;
+  fill: #607d8b;
+}
+
+.set6a {
+  stroke: #4e342e;
+  fill: #d7ccc8;
+}
+
+.set6b {
+  stroke: #4e342e;
+  fill: #795548;
+}
+
+.others {
+  fill: #f8bbd0;
+  fill: #e91e63;
+  stroke: #880e4f;
+
+  fill: #cfd8dc;
+  fill: #607d8b;
+  stroke: #263238;
+
+  fill: #d7ccc8;
+  fill: #795548;
+  stroke: #4e342e;
+}

@@ -1,23 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React, { useContext, useEffect } from "react";
+import Board from "./components/Board";
+import Menu from "./components/Menu";
+import NumberBar from "./components/NumberBar";
+import { BoardContext } from "./util/boardContext";
+import { boards } from "./boards";
 
 function App() {
+  const context = useContext(BoardContext);
+  const { initBoard } = context;
+
+  useEffect(() => {
+    const rand = Math.random();
+    const idx = Math.floor(boards.length * rand);
+    initBoard(boards[idx]);
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <Board />
+        <NumberBar />
+      </div>
+      <Menu />
     </div>
   );
 }

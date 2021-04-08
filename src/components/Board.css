@@ -1,0 +1,18 @@
+.Board {
+  height: 580px;
+  width: 580px;
+  background-color: whitesmoke;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .Board {
+    height: 360px;
+    width: 360px;
+  }
+}

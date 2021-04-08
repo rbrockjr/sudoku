@@ -1,0 +1,16 @@
+.DecoratorsSVG {
+  position: absolute;
+  width: 580px;
+  height: 580px;
+  fill: #bbdefb;
+  stroke: #282c34;
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .DecoratorsSVG {
+    width: 360px;
+    height: 360px;
+  }
+}

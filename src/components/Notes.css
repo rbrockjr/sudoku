@@ -1,0 +1,36 @@
+.Notes {
+  height: 60px;
+  width: 60px;
+  color: darkslategrey;
+  font-size: 17px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.annotation {
+  height: 18px;
+  width: 18px;
+  line-height: 19px;
+}
+
+.annotation .claimed {
+  background-color: #bbdefb;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .Notes {
+    height: 36px;
+    width: 36px;
+    font-size: 12px;
+  }
+
+  .annotation {
+    height: 12px;
+    width: 12px;
+    line-height: 11px;
+  }
+}

@@ -1,0 +1,26 @@
+.NumberBar {
+  width: 580px;
+  padding-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .NumberBar {
+    flex-wrap: wrap;
+    xdisplay: inline-block;
+    xoverflow: scroll;
+    xwhite-space: nowrap;
+    width: 350px;
+    xheight: 60px;
+    padding-top: 5px;
+  }
+}
+
+.NumberBar .greyed {
+  color: gray;
+  border-color: gray;
+}

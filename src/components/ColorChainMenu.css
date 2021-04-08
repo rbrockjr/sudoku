@@ -1,0 +1,60 @@
+.ColorChainMenu {
+  display: flex;
+  width: 250px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.RoundButton.set1 {
+  border-color: #4caf50;
+}
+
+.RoundButton.set1.active {
+  border-color: whitesmoke;
+  background-color: #4caf50;
+}
+
+.RoundButton.set2 {
+  border-color: #673ab7;
+}
+
+.RoundButton.set2.active {
+  border-color: whitesmoke;
+  background-color: #673ab7;
+}
+
+.RoundButton.set3 {
+  border-color: #ff5722;
+}
+
+.RoundButton.set3.active {
+  border-color: whitesmoke;
+  background-color: #ff5722;
+}
+
+.RoundButton.set4 {
+  border-color: #e91e63;
+}
+
+.RoundButton.set4.active {
+  border-color: whitesmoke;
+  background-color: #e91e63;
+}
+
+.RoundButton.set5 {
+  border-color: #607d8b;
+}
+
+.RoundButton.set5.active {
+  border-color: whitesmoke;
+  background-color: #607d8b;
+}
+
+.RoundButton.set6 {
+  border-color: #795548;
+}
+
+.RoundButton.set6.active {
+  border-color: whitesmoke;
+  background-color: #795548;
+}

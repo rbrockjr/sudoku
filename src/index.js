@@ -3,10 +3,22 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { GlobalProvider } from './util/globalContext';
+import { BoardProvider } from './util/boardContext';
+import { ChainProvider } from './util/chainContext';
+import Toaster from './toast/Toaster';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Toaster>
+      <GlobalProvider>
+        <BoardProvider>
+          <ChainProvider>
+            <App />
+          </ChainProvider>
+        </BoardProvider>
+      </GlobalProvider>
+    </Toaster>
   </React.StrictMode>,
   document.getElementById('root')
 );

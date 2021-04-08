@@ -1,0 +1,7 @@
+.ToastContainer {
+  position: absolute;
+  /* Top right corner */
+  top: 0px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
