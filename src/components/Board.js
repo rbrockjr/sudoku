@@ -1,26 +1,23 @@
-import './Board.css';
+import "./Board.css";
 import Box from "./Box";
-import ColorChainSVG from './ColorChainSVG';
-import DecoratorsSVG from './DecoratorsSVG';
+import ColorChainSVG from "./ColorChainSVG";
+import DecoratorsSVG from "./DecoratorsSVG";
+import NiceLoopSVG from "./NiceLoopSVG";
 
 function Board() {
- 
-    const boxes = [];
-    for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-            boxes.push(
-                <Box startRow={row * 3} startCol={col * 3} key={row + ',' + col} />
-            );
-        }
-    }
+  const boxes = [];
+  for (let box = 0; box < 9; box++) {
+    boxes.push(<Box box={box} key={box} />);
+  }
 
-    return (
-        <div className="Board">
-            <ColorChainSVG />
-            <DecoratorsSVG />
-            {boxes}
-        </div>
-    )
+  return (
+    <div className="Board">
+      <ColorChainSVG />
+      <DecoratorsSVG />
+      <NiceLoopSVG />
+      {boxes}
+    </div>
+  );
 }
 
 export default Board;

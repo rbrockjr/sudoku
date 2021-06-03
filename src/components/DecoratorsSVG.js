@@ -22,37 +22,35 @@ function DecoratorsSVG() {
     return y;
   }
 
-
   const generateDecorator = (x, y, size) => {
     const radius = size / 2;
     const items = [];
-    items.push(<path d={'M' + (x-radius) + ' ' + y  + ' C' + (x-radius) + ' ' + y + ' ' + (x-radius) + ' ' + (y-radius) + ' ' + x + ' ' + (y-radius) + ' L' + (x-radius) + ' ' + (y-radius) + ' Z'} />);
-    items.push(<path d={'M' + (x+radius) + ' ' + y  + ' C' + (x+radius) + ' ' + y + ' ' + (x+radius) + ' ' + (y-radius) + ' ' + x + ' ' + (y-radius) + ' L' + (x+radius) + ' ' + (y-radius) + ' Z'} />);
-    items.push(<path d={'M' + (x-radius) + ' ' + y  + ' C' + (x-radius) + ' ' + y  + ' ' + (x-radius) + ' ' + (y+radius) + ' ' + x + ' ' + (y+radius) + ' L' + (x-radius) + ' ' + (y+radius) + ' Z'} />);
-    items.push(<path d={'M' + (x+radius) + ' ' + y  + ' C' + (x+radius) + ' ' + y + ' ' + (x+radius) + ' ' + (y+radius) + ' ' + x + ' ' + (y+radius) + ' L' + (x+radius) + ' ' + (y+radius) + ' Z'} />);
+    items.push(<path d={'M' + (x-radius) + ' ' + y  + ' C' + (x-radius) + ' ' + y + ' ' + (x-radius) + ' ' + (y-radius) + ' ' + x + ' ' + (y-radius) + ' L' + (x-radius) + ' ' + (y-radius) + ' Z'} key={1} />);
+    items.push(<path d={'M' + (x+radius) + ' ' + y  + ' C' + (x+radius) + ' ' + y + ' ' + (x+radius) + ' ' + (y-radius) + ' ' + x + ' ' + (y-radius) + ' L' + (x+radius) + ' ' + (y-radius) + ' Z'} key={2} />);
+    items.push(<path d={'M' + (x-radius) + ' ' + y  + ' C' + (x-radius) + ' ' + y  + ' ' + (x-radius) + ' ' + (y+radius) + ' ' + x + ' ' + (y+radius) + ' L' + (x-radius) + ' ' + (y+radius) + ' Z'} key={3} />);
+    items.push(<path d={'M' + (x+radius) + ' ' + y  + ' C' + (x+radius) + ' ' + y + ' ' + (x+radius) + ' ' + (y+radius) + ' ' + x + ' ' + (y+radius) + ' L' + (x+radius) + ' ' + (y+radius) + ' Z'} key={4} />);
     return items;
   }
 
   const globalContext = useContext(GlobalContext);
-  const { state } = globalContext;
+  const { activeNumber, highlightValues } = globalContext.state;
 
-  const {getCellValue} = useContext(BoardContext);
+  const boardContext = useContext(BoardContext);
+  const { findCellsByValue } = boardContext;
 
-  const items = [];
-  
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-        if (getCellValue(row, col) === state.activeNumber) {
-            items.push(generateDecorator(getX(col), getY(row), CELL_SIZE));
-        }
-    }
-  }  
+  if (highlightValues) {
+    const items = findCellsByValue(activeNumber).map((cell) => {
+      return generateDecorator(getX(cell.col), getY(cell.row), CELL_SIZE)
+    });
 
-  return (
-      <svg className="DecoratorsSVG" viewBox="0 0 580 580"> 
-        {items}
-      </svg>
-  )
+    return (
+        <svg className="DecoratorsSVG" viewBox="0 0 580 580"> 
+          {items}
+        </svg>
+    )
+  } else {
+    return null;
+  }
 }
 
 export default DecoratorsSVG;

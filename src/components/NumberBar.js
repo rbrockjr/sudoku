@@ -4,7 +4,9 @@ import RoundButton from './RoundButton';
 import { GlobalContext } from '../util/globalContext';
 
 const NumberBar = () => {
-    const { state, setActiveNumber } =  useContext(GlobalContext);
+    const globalContext =  useContext(GlobalContext);
+    const { setActiveNumber } =  globalContext;
+    const { activeNumber, solvedNumbers } = globalContext.state;
 
     const buttonClick = (number) => {
       setActiveNumber(number);
@@ -13,7 +15,7 @@ const NumberBar = () => {
     const buttons= [];
     for (let i = 0; i < 9; i++) {
         buttons.push(
-            <RoundButton buttonText={i+1} active={state.activeNumber === (i+1)} secondaryClass={state.solvedNumbers[i] ? 'greyed' : ''} buttonClick={() => buttonClick(i+1)} key={i+1} />
+            <RoundButton content={i+1} active={activeNumber === (i+1)} secondaryClass={solvedNumbers[i] ? 'greyed' : ''} buttonClick={() => buttonClick(i+1)} key={i+1} />
         );
     }
 

@@ -1,29 +1,23 @@
 import "./App.css";
-import React, { useContext, useEffect } from "react";
+import AppProviders from "./AppProviders";
 import Board from "./components/Board";
+import ExperimentalMenu from "./components/ExpirementalMenu";
 import Menu from "./components/Menu";
 import NumberBar from "./components/NumberBar";
-import { BoardContext } from "./util/boardContext";
-import { boards } from "./boards";
 
 function App() {
-  const context = useContext(BoardContext);
-  const { initBoard } = context;
-
-  useEffect(() => {
-    const rand = Math.random();
-    const idx = Math.floor(boards.length * rand);
-    initBoard(boards[idx]);
-  }, []);
 
   return (
-    <div className="App">
-      <div>
-        <Board />
-        <NumberBar />
+    <AppProviders>
+      <div className="App">
+        <div>
+          <Board />
+          <NumberBar />
+        </div>
+        <Menu />
+        <ExperimentalMenu />
       </div>
-      <Menu />
-    </div>
+    </AppProviders>
   );
 }
 

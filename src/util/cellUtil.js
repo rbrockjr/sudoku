@@ -1,3 +1,86 @@
+const makeCellWithValue = (value) => {
+  return { value };
+}
+
+const getCellRow = (cellId) => {
+  return Math.floor(cellId / 9);
+};
+
+const getCellCol = (cellId) => {
+  return cellId % 9;
+};
+
+const getCellBox = (cellId) => {
+  return (
+    Math.floor(getCellRow(cellId) / 3) * 3 + Math.floor(getCellCol(cellId) / 3)
+  );
+};
+
+const getCellClaims = (cellId) => {
+  return {
+    row: getCellRow(cellId),
+    col: getCellCol(cellId),
+    box: getCellBox(cellId)
+  }
+}
+
+const areCellsDependent = (cellId1, cellId2) => {
+  return cellId1 !== cellId2
+    ? getCellRow(cellId1) === getCellRow(cellId2)
+      ? true
+      : getCellCol(cellId1) === getCellCol(cellId2)
+      ? true
+      : getCellBox(cellId1) === getCellBox(cellId2)
+      ? true
+      : false
+    : false;
+};
+
+const findDependentCells = (cellId, board) => {
+  return board.reduce(
+    (dep, cell, id) =>
+      areCellsDependent(cellId, id) ? dep.concat([{...cell, id}]) : dep,
+    []
+  );
+};
+
+const isCellClaimed = (cellId, value, board) => {
+  return (
+    findDependentCells(cellId, board).filter((cell) => cell.value === value)
+      .length > 0
+  );
+};
+
+const removeCandidateFromCell = (cell, candidate) => {
+  return cell.notes ? { ...cell, notes: removeCandidateFromString(candidate, cell.notes) } : cell;
+}
+
+const addCandidateToString = (candidate, str) => {
+  return str
+    ? str.match(candidate)
+      ? "" + str
+      : str.concat(candidate).split("").sort().join("")
+    : "" + candidate;
+};
+
+const removeCandidateFromString = (candidate, str) => {
+  return str.replace(candidate, "");
+};
+
+// const clearCandidateFromClaimedCells = (cellId, candidate, board) => {
+//   return board.map((cell, id) => {
+//     if (id === cellId || areCellsDependent(id, cellId)) {
+//       return {
+//         ...cell,
+//         notes: removeCandidateFromString(candidate, cell.notes)
+//       }
+//     }
+//     return cell;
+//   });
+// };
+
+// Old stuff below
+
 const findConflictCells = (row, col, value, board) => {
   return (
     findInfluenceCells(row, col, board).reduce((cnt, cell) => {
@@ -42,49 +125,22 @@ const clearNotesFromClaimedCells = (cellRow, cellCol, activeNumber, notes) => {
   const col1 = Math.floor(cellCol / 3) * 3;
   for (let row = row1; row < row1 + 3; row++) {
     for (let col = col1; col < col1 + 3; col++) {
-        notes[row][col][activeNumber - 1] = false;
+      notes[row][col][activeNumber - 1] = false;
     }
   }
 };
 
-const colorChainMateCheck = (cellRow, cellCol, set, chainCells) => {
-  let rtn = { rowCnt: 0, colCnt: 0, sqCnt: 0, total: 0, type: 0 };
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      let cell = chainCells[row][col];
-      if (cell && cell.set === set) {
-        let mateFound = false;
-        if (row === cellRow) {
-          mateFound = true;
-          rtn.rowCnt++;
-        }
-        if (col === cellCol) {
-          mateFound = true;
-          rtn.colCnt++;
-        }
-        if (
-          Math.floor(row / 3) === Math.floor(cellRow / 3) &&
-          Math.floor(col / 3) === Math.floor(cellCol / 3)
-        ) {
-          mateFound = true;
-          rtn.sqCnt++;
-        }
-        if (mateFound) {
-          rtn.type = cell.type;
-        }
-        rtn.total++;
-      }
-    }
-  }
-  return rtn;
+export {
+  makeCellWithValue,
+  getCellRow,
+  getCellCol,
+  getCellBox,
+  getCellClaims,
+  isCellClaimed,
+  areCellsDependent,
+  addCandidateToString,
+  removeCandidateFromCell,
+  removeCandidateFromString,
+  findConflictCells,
+  findDependentCells
 };
-
-const init9x9 = (val) => {
-    const rtn9x9 = [];
-    for (let col = 0; col < 9; col++) {
-        rtn9x9[col] = Array(9).fill(val);
-    }
-    return rtn9x9;
-}
-
-export { init9x9, findConflictCells, clearNotesFromClaimedCells, colorChainMateCheck };

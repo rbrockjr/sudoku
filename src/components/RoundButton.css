@@ -1,6 +1,7 @@
 .RoundButton {
   height: 50px;
   width: 50px;
+  text-align: center;
   color: whitesmoke;
   margin: 6px;
   border: 3px solid whitesmoke;
@@ -33,10 +34,11 @@
   background-color: mediumblue;
 }
 
-.RoundButton.temporaryActive {
-  background-color: #282c34;
-  -webkit-transition: background-color 0.3s ease-in;
-  -moz-transition: background-color 0.3s ease-in;
-  -o-transition: background-color 0.3s ease-in;
-  transition: background-color 0.3s ease-in;
+.RoundButton.press {
+  animation: pressanimation 1s forwards;
+}
+
+@keyframes pressanimation {
+  0%   {background: mediumblue; }
+  100% {background: #282c34; }
 }

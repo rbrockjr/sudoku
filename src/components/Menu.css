@@ -1,0 +1,22 @@
+.Menu {
+  height: 580px;
+  width: 140px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  xalign-items:stretch;
+  xjustify-content:space-evenly;
+  align-content: space-between;
+}
+
+@media all and (max-width: 800px), all and (max-height: 767px) {
+  .Menu {
+    height: 140px;
+    width: 580px;
+    margin-left: 0px;
+    margin-top: 20px;
+    display: inline-flex;
+    justify-content: space-evenly;
+  }
+}

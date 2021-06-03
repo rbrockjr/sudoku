@@ -1,8 +1,18 @@
 .ColorChainMenu {
   display: flex;
-  width: 250px;
+  width: 150px;
+  height: 280px;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: wrap;  
+  justify-content: space-evenly;
+  align-content: space-between;
+}
+
+@media all and (max-width: 800px), all and (max-height: 767px) {
+  .ColorChainMenu {
+    height: 140px;
+    width: 280px;
+  }
 }
 
 .RoundButton.set1 {

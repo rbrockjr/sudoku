@@ -1,6 +1,8 @@
 .CellModeMenu {
   display: flex;
-  width: 200px;
+  width: 150px;
+  height: 140px;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content:space-evenly;
 }

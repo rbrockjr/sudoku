@@ -4,19 +4,28 @@ import { CELL_CLICK_MODES } from "../util/constants";
 import "./ColorChainMenu.css";
 import { ChainContext } from "../util/chainContext";
 import { GlobalContext } from "../util/globalContext";
+import loopImg from '../images/loop.png';
 
 const ColorChainMenu = () => {
   const globalContext = useContext(GlobalContext);
   const globalState = globalContext.state;
-  const { setCellClickMode } = globalContext;
   const chainContext = useContext(ChainContext);
-  const { state, setColorChainSet } = chainContext;
+  const { state, clearMarks, setColorChainSet, setNiceLoopMode } = chainContext;
+
+  const loopButtonStyle = {
+    backgroundImage: `url(${loopImg})`, 
+    backgroundRepeat: 'no-repeat', 
+    backgroundPosition: '6px 6px',
+    backgroundSize: '80%' 
+  };
+
+  let loopButton = <div style={loopButtonStyle}>&nbsp;</div>
 
   return (
     <div className="ColorChainMenu">
       <RoundButton
         secondaryClass="set1"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 0
@@ -26,7 +35,7 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="set2"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 1
@@ -36,7 +45,7 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="set3"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 2
@@ -46,7 +55,7 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="set4"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 3
@@ -56,7 +65,7 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="set5"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 4
@@ -66,7 +75,7 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="set6"
-        buttonText=""
+        content=""
         active={
           globalState.cellClickMode === CELL_CLICK_MODES.COLOR_CHAIN &&
           state.colorChainSet === 5
@@ -76,10 +85,16 @@ const ColorChainMenu = () => {
       />
       <RoundButton
         secondaryClass="nice"
-        buttonText="N!"
+        content={loopButton}
         active={globalState.cellClickMode === CELL_CLICK_MODES.LOOP}
-        buttonClick={() => setCellClickMode(CELL_CLICK_MODES.LOOP)}
+        buttonClick={() => setNiceLoopMode()}
         key={107}
+      />
+      <RoundButton
+        content="C"
+        animatePress={true}
+        buttonClick={() => clearMarks()}
+        key={108}
       />
     </div>
   );

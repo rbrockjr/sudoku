@@ -5,7 +5,7 @@ import {
   getCellRow,
   getCellCol,
   getCellBox,
-} from "./solveUtil";
+} from "./cellUtil";
 
 test("gets row for cell", () => {
   expect(getCellRow(0)).toBe(0);

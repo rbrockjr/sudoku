@@ -1,0 +1,22 @@
+.NiceLoopSVG {
+  position: absolute;
+  width: 580px;
+  height: 580px;
+  stroke-width: 2;
+  stroke: #f00;
+  fill: #f00;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@media all and (max-width: 767px), all and (max-height: 767px) {
+  .NiceLoopSVG {
+    width: 360px;
+    height: 360px;
+  }
+}
+
+.cell0 {
+  stroke: #111111;
+  fill: #333333
+}

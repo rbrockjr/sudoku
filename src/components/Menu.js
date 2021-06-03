@@ -1,11 +1,14 @@
 import CellModeMenu from "./CellModeMenu";
 import ColorChainMenu from "./ColorChainMenu";
+import "./Menu.css";
+import SettingsMenu from "./SettingsMenu";
 
-function Menu() {
+function Menu(props) {
     return (
-        <div>
-            <CellModeMenu/>
-            <ColorChainMenu/>
+        <div className="Menu" >
+            <CellModeMenu />
+            <ColorChainMenu />
+            <SettingsMenu openSettings={props.openSettings} />
         </div>
     )
 }

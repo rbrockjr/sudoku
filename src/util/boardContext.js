@@ -1,14 +1,24 @@
 import { createContext, useContext, useReducer } from "react";
+import { boards } from "../boards";
 import {
-  findConflictCells,
-  clearNotesFromClaimedCells,
-  init9x9,
+  removeCandidateFromString,
+  addCandidateToString,
+  getCellClaims,
+  isCellClaimed,
+  areCellsDependent
 } from "./cellUtil";
+import { ChainContext } from "./chainContext";
+import { CELL_CLICK_MODES } from "./constants";
 import { GlobalContext } from "./globalContext";
 
 const SET_BOARD = "SET_BOARD";
-const SET_NOTES = "SET_NOTES";
 const UNDO_REDO = "UNDO_REDO";
+
+const initialState = {
+  board: Array(81).fill({}),
+  undoStates: [],
+  redoStates: [],
+};
 
 const boardReducer = (state, action) => {
   switch (action.type) {
@@ -16,15 +26,6 @@ const boardReducer = (state, action) => {
       return {
         ...state,
         board: action.board,
-        notes: action.notes,
-        undoStates: action.undoStates,
-        redoStates: [],
-      };
-    }
-    case SET_NOTES: {
-      return {
-        ...state,
-        notes: action.notes,
         undoStates: action.undoStates,
         redoStates: [],
       };
@@ -33,7 +34,6 @@ const boardReducer = (state, action) => {
       return {
         ...state,
         board: action.board,
-        notes: action.notes,
         undoStates: action.undoStates,
         redoStates: action.redoStates,
       };
@@ -44,102 +44,141 @@ const boardReducer = (state, action) => {
   }
 };
 
-const initialState = {
-  board: init9x9(""),
-  notes: init9x9(Array(9).fill(false)),
-  undoStates: [],
-  redoStates: [],
-};
-
 const BoardContext = createContext();
 
 const BoardProvider = ({ children }) => {
   const globalContext = useContext(GlobalContext);
+  const chainContext = useContext(ChainContext);
+  const { setColorChainCell, setNiceLoopCell } = chainContext;
 
   const [state, dispatch] = useReducer(boardReducer, initialState);
 
-  const getCellValue = (row, col) => {
-    return state.board[row][col];
+  const cellClicked = (cellId) => {
+    switch (globalContext.state.cellClickMode) {
+      case CELL_CLICK_MODES.VALUE:
+        setCellValue(cellId);
+        break;
+      case CELL_CLICK_MODES.NOTE:
+        toggleNoteFor(cellId);
+        break;
+      case CELL_CLICK_MODES.LOOP:
+        setNiceLoopCell(cellId, state.board);
+        break;
+      default:
+        setColorChainCell(cellId);
+    }
   };
 
-  const setCellValue = (row, col) => {
-    let update = true;
+  const setCellValue = (cellId) => {
     const { activeNumber } = globalContext.state;
-    const newBoard = state.board.map((r) => r.map((c) => c));
-    const newNotes = state.notes.map((r) => r.map((c) => c));
 
-    if (newBoard[row][col] === activeNumber) {
-      newBoard[row][col] = "";
-    } else {
-      if (!findConflictCells(row, col, activeNumber, newBoard)) {
-        newBoard[row][col] = activeNumber;
-        clearNotesFromClaimedCells(row, col, activeNumber, newNotes);
-      } else {
-        update = false;
+    if (!isCellClaimed(cellId, activeNumber, state.board)) {
+      const board = updateBoardWithCellValue(
+        cellId,
+        state.board[cellId].value !== activeNumber ? activeNumber : "",
+        state.board
+      );
+
+      dispatch({
+        type: SET_BOARD,
+        board: board,
+        undoStates: genUndoStates(state.board),
+      });
+
+      globalContext.setSolvedNumbers(board);
+    }
+  };
+  
+  const findCellsByValue = (value) => {
+    return state.board.reduce(
+      (dep, cell, id) =>
+        cell && cell.value === value ? dep = [...dep, getCellClaims(id)] : dep,
+      []
+    );
+  };
+
+  const initBoard = (init) => {
+    const board = [];
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        board.push({ value: init[row][col] });
       }
     }
 
-    if (update) {
-      dispatch({
-        type: SET_BOARD,
-        board: newBoard,
-        notes: newNotes,
-        undoStates: genUndoStates(newBoard, newNotes, state.undoStates),
-      });
-      globalContext.setSolvedNumbers(newBoard);
-    }
-  };
-
-  const initBoard = (board) => {
     dispatch({
       type: SET_BOARD,
       board: board,
-      notes: init9x9(Array(9).fill(false)),
       undoStates: [],
     });
     globalContext.setSolvedNumbers(board);
   };
 
-  const hasNoteFor = (row, col, pos) => {
-    return state.notes[row][col][pos];
+  const loadRandomBoard = () => {
+    const rand = Math.random();
+    const idx = Math.floor(boards.length * rand);
+    initBoard(boards[idx]);
   };
 
-  const toggleNoteFor = (row, col) => {
-    const { activeNumber } = globalContext.state;
-    const newNotes = cloneNotes(state.notes);
-    newNotes[row][col][activeNumber - 1] = !newNotes[row][col][
-      activeNumber - 1
-    ];
+  const importBoard = (str) => {
+    if (str.length === 81) {
+      const board = str.split('')
+        .map((c) => parseInt(c))
+        .map((value) => value > 0 ? { value } : {});
+        
+      dispatch({
+        type: SET_BOARD,
+        board: board,
+        undoStates: [],
+      });
+      globalContext.setSolvedNumbers(board);
+    }
+  };
 
+  const toggleNoteFor = (cellId) => {
+    const { activeNumber } = globalContext.state;
+    const cell = state.board[cellId];
+
+    if (!cell.value) {
+      let notes = "";
+      if (cell.notes && cell.notes.match(activeNumber)) {
+        notes = removeCandidateFromString(activeNumber, cell.notes);
+      } else {
+        notes = addCandidateToString(activeNumber, cell.notes);
+      }
+
+      dispatch({
+        type: SET_BOARD,
+        board: updateBoardWithNoteValue(cellId, notes, state.board),
+        undoStates: genUndoStates(state.board),
+      });
+    }
+  };
+
+  const genUndoStates = (board) => {
+    return [...state.undoStates, board.map((cell) => ({ ...cell }))];
+  };
+
+  const setBoard = (board) => {
     dispatch({
-      type: SET_NOTES,
-      notes: newNotes,
-      undoStates: genUndoStates(state.board, newNotes, state.undoStates),
+      type: SET_BOARD,
+      board: board,
+      undoStates: genUndoStates(state.board),
     });
+
+    globalContext.setSolvedNumbers(board);
   };
 
   const undo = () => {
     if (state.undoStates.length > 0) {
-      const board = cloneBoard(
-        state.undoStates[state.undoStates.length - 1].board
-      );
-      const notes = cloneNotes(
-        state.undoStates[state.undoStates.length - 1].notes
-      );
-      const undoStates = cloneUndoRedoArray(state.undoStates);
-      const redoStates = cloneUndoRedoArray(state.redoStates);
-      undoStates.length--;
-      redoStates.unshift({
-        board: cloneBoard(state.board),
-        notes: cloneNotes(state.notes),
-      });
+      const board = state.undoStates[
+        state.undoStates.length - 1
+      ].map((cell) => ({ ...cell }));
 
       dispatch({
         type: UNDO_REDO,
-        board,
-        notes,
-        undoStates,
-        redoStates,
+        board: board,
+        undoStates: state.undoStates.slice(0, state.undoStates.length - 1),
+        redoStates: [state.board, ...state.redoStates],
       });
 
       globalContext.setSolvedNumbers(board);
@@ -148,22 +187,13 @@ const BoardProvider = ({ children }) => {
 
   const redo = () => {
     if (state.redoStates.length > 0) {
-      const board = cloneBoard(state.redoStates[0].board);
-      const notes = cloneNotes(state.redoStates[0].notes);
-      const undoStates = cloneUndoRedoArray(state.undoStates);
-      const redoStates = cloneUndoRedoArray(state.redoStates);
-      undoStates[undoStates.length] = {
-        board: cloneBoard(state.board),
-        notes: cloneNotes(state.notes),
-      };
-      redoStates.shift();
+      const board = state.redoStates[0].map((cell) => ({ ...cell }));
 
       dispatch({
         type: UNDO_REDO,
-        board,
-        notes,
-        undoStates,
-        redoStates,
+        board: board,
+        undoStates: [...state.undoStates, state.board],
+        redoStates: state.redoStates.slice(1),
       });
 
       globalContext.setSolvedNumbers(board);
@@ -173,11 +203,11 @@ const BoardProvider = ({ children }) => {
   const value = {
     state,
     dispatch,
-    initBoard,
-    getCellValue,
-    setCellValue,
-    hasNoteFor,
-    toggleNoteFor,
+    importBoard,
+    loadRandomBoard,
+    findCellsByValue,
+    cellClicked,
+    setBoard,
     undo,
     redo,
   };
@@ -186,30 +216,28 @@ const BoardProvider = ({ children }) => {
   );
 };
 
-const genUndoStates = (board, notes, undo) => {
-  const undoStates = cloneUndoRedoArray(undo);
-  undoStates[undoStates.length] = {
-    board: cloneBoard(board),
-    notes: cloneNotes(notes),
-  };
-  return undoStates;
-};
-
-const cloneBoard = (b) => {
-  return b.map((x) => x.map((y) => y));
-};
-
-const cloneNotes = (n) => {
-  return n.map((x) => x.map((y) => y.map((z) => z)));
-};
-
-const cloneUndoRedoArray = (a) => {
-  return a.map((s) => {
-    return {
-      board: cloneBoard(s.board),
-      notes: cloneNotes(s.notes),
-    };
+const updateBoardWithCellValue = (cellId, value, board) => {
+  value = parseInt(value);
+  return board.map((cell, id) => {
+    return id === cellId
+      ? { value }
+      : areCellsDependent(id, cellId)
+      ? removeCandidateFromCell(value, cell)
+      : cell;
   });
+};
+
+const updateBoardWithNoteValue = (cellId, notes, board) => {
+  return board.map((cell, id) => {
+    return id === cellId ? { notes } : cell;
+  });
+};
+
+const removeCandidateFromCell = (candidate, cell) => {
+  return {
+    ...cell,
+    notes: cell.notes ? removeCandidateFromString(candidate, cell.notes) : "",
+  };
 };
 
 export { BoardProvider, BoardContext };

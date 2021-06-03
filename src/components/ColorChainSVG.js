@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { getCellClaims } from "../util/cellUtil";
 import { ChainContext } from "../util/chainContext";
 import "./ColorChainSVG.css";
 
@@ -39,41 +40,24 @@ function ColorChainSVG() {
     return set;
   };
 
-  const rowMateCheck = (row, col, set, chain) => {
-    return chain[row].reduce((acc, cur, iCol) => {
-      if (col !== iCol && cur && cur.set === set) {
-        acc = { row, col: iCol };
-      }
-      return acc;
-    }, null);
-  };
-
-  const colMateCheck = (row, col, set, chain) => {
-    return chain.reduce((acc, cur, iRow) => {
-      const cell = cur[col];
-      if (row !== iRow && cell && cell.set === set) {
-        acc = { row: iRow, col };
-      }
-      return acc;
-    }, null);
-  };
-
-  const squareMateCheck = (row, col, set, chain) => {
-    const startRow = Math.floor(row / 3) * 3;
-    const startCol = Math.floor(col / 3) * 3;
-    for (let r = startRow; r < startRow + 3; r++) {
-      for (let c = startCol; c < startCol + 3; c++) {
-        const cell = chain[r][c];
-        if (row !== r && col !== c && cell && cell.set === set) {
-          return {
-            row: r,
-            col: c,
-          };
+  const cellMateCheck = (cellId, set, chain) => {
+    return chain.reduce((acc, cell, id) => {
+      if (cell && cell.set === set && id !== cellId) {
+        const cellRCS = getCellClaims(cellId);
+        const matchRCS = getCellClaims(id);
+        if (cellRCS.row === matchRCS.row) {
+          acc.rowMatch = matchRCS
+        }
+        else if (cellRCS.col === matchRCS.col) {
+          acc.colMatch = matchRCS
+        }
+        else if (cellRCS.box === matchRCS.box) {
+          acc.boxMatch = matchRCS
         }
       }
-    }
-    return null;
-  };
+      return acc;
+    }, {});
+  }
 
   const generateLine = (x1, y1, x2, y2, className) => {
     return (
@@ -89,93 +73,89 @@ function ColorChainSVG() {
   };
 
   const chainContext = useContext(ChainContext);
-  const { state } = chainContext;
+  const { colorChain } = chainContext.state;
 
   const items = [];
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      const cell = state.colorChain[row][col];
-      if (cell) {
-        const x = getX(col);
-        const y = getY(row);
-        const setClass = determineSetClass(cell);
+  colorChain.forEach((cell, id) => {
+    if (cell) {
+      const claims = getCellClaims(id);
+      const x = getX(claims.col);
+      const y = getY(claims.row);
+      const setClass = determineSetClass(cell);
+      items.push(
+        <circle
+          cx={x}
+          cy={y}
+          r="25"
+          className={setClass}
+          opacity="0.6"
+          key={x + "-" + y}
+        />
+      );
+      
+      // Do line connectors
+      const { rowMatch, colMatch, boxMatch } = cellMateCheck(id, cell.set, colorChain);
+      if (rowMatch && rowMatch.col < claims.col) {
+        const xAdj = 25;
         items.push(
-          <circle
-            cx={x}
-            cy={y}
-            r="25"
-            className={setClass}
-            opacity="0.6"
-            key={row + "-" + col}
-          />
+          generateLine(
+            x - xAdj,
+            y,
+            getX(rowMatch.col) + xAdj,
+            getY(rowMatch.row),
+            setClass
+          )
         );
+      }
+      
+      if (colMatch && colMatch.row < claims.row) {
+        const yAdj = 25;
+        items.push(
+          generateLine(
+            x,
+            y - yAdj,
+            getX(colMatch.col),
+            getY(colMatch.row) + yAdj,
+            setClass
+          )
+        );
+      }
 
-        // Do line connectors
-        let match = rowMateCheck(row, col, cell.set, state.colorChain);
-        if (match && match.col < col) {
-          const xAdj = 25;
-          items.push(
-            generateLine(
-              x - xAdj,
-              y,
-              getX(match.col) + xAdj,
-              getY(match.row),
-              setClass
-            )
-          );
+      if (boxMatch && boxMatch.row < claims.row) {
+        let xAdj = 0;
+        let yAdj = 0;
+        if (Math.abs(claims.row - boxMatch.row) - Math.abs(claims.col - boxMatch.col) === 0) {
+          // Indicates 45 degree angle
+          xAdj = 25 * Math.sin(Math.PI / 4);
+          yAdj = xAdj;
+        } else {
+          // 30, 60 degree angle
+          xAdj =
+            25 *
+            (Math.abs(boxMatch.row - claims.row) === 2
+              ? Math.sin(Math.PI / 6)
+              : Math.sin(Math.PI / 3));
+          yAdj =
+            25 *
+            (Math.abs(boxMatch.col - claims.col) === 2
+              ? Math.sin(Math.PI / 6)
+              : Math.sin(Math.PI / 3));
         }
-
-        match = colMateCheck(row, col, cell.set, state.colorChain);
-        if (match && match.row < row) {
-          const yAdj = 25;
-          items.push(
-            generateLine(
-              x,
-              y - yAdj,
-              getX(match.col),
-              getY(match.row) + yAdj,
-              setClass
-            )
-          );
+        if (boxMatch.col > claims.col) {
+          xAdj = -xAdj;
         }
-
-        match = squareMateCheck(row, col, cell.set, state.colorChain);
-        if (match && match.row < row) {
-          let xAdj = 0;
-          let yAdj = 0;
-          if (Math.abs(row - match.row) - Math.abs(col - match.col) === 0) {
-            // Indicates 45 degree angle
-            xAdj = 25 * Math.sin(Math.PI / 4);
-            yAdj = xAdj;
-          } else {
-            // 30, 60 degree angle
-            xAdj =
-              25 *
-              (Math.abs(match.row - row) === 2
-                ? Math.sin(Math.PI / 6)
-                : Math.sin(Math.PI / 3));
-            yAdj =
-              25 *
-              (Math.abs(match.col - col) === 2
-                ? Math.sin(Math.PI / 6)
-                : Math.sin(Math.PI / 3));
-          }
-          if (match.col > col) {
-            xAdj = -xAdj;
-          }
-          items.push(
-            generateLine(
-              x - xAdj,
-              y - yAdj,
-              getX(match.col) + xAdj,
-              getY(match.row) + yAdj,
-              setClass
-            )
-          );
-        }
+        items.push(
+          generateLine(
+            x - xAdj,
+            y - yAdj,
+            getX(boxMatch.col) + xAdj,
+            getY(boxMatch.row) + yAdj,
+            setClass
+          )
+        );
       }
     }
-  }
+  })
 
   return (
     <svg className={"ColorChainSVG"} viewBox="0 0 580 580">

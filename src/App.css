@@ -1,13 +1,9 @@
 .App {
-  text-align: center;
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: calc(100vh - 25px);
+  padding-top: 25px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  align-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
